@@ -23,6 +23,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
+	"sync"
 
 	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/midimessage/realtime"
@@ -201,25 +202,35 @@ func runOut(drv midi.Driver) error {
 		return err
 	}
 
-	for {
-		var b = make([]byte, 3)
-		_, err := os.Stdin.Read(b)
+	var wg sync.WaitGroup
+	wg.Add(1)
 
-		if err != nil {
-			logMsg("error %s\n", err.Error())
-			continue
+	go func() {
+		for {
+			var b = make([]byte, 3)
+			_, err := os.Stdin.Read(b)
+
+			if err != nil {
+				logMsg("error %s\n", err.Error())
+				continue
+			}
+
+			if err == io.EOF {
+				break
+			}
+
+			_, werr := out.Write(b)
+
+			if werr != nil {
+				logMsg("could not write % X to port %q: %s\n", b, out.String(), werr.Error())
+			}
+			runtime.Gosched()
 		}
+		wg.Done()
+	}()
 
-		if err == io.EOF {
-			break
-		}
+	wg.Wait()
 
-		_, werr := out.Write(b)
-
-		if werr != nil {
-			logMsg("could not write % X to port %q: %s\n", b, out.String(), werr.Error())
-		}
-	}
 	return nil
 }
 
