@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"runtime"
@@ -104,25 +105,33 @@ func logRealTime(rt realtime.Message) {
 	fmt.Fprintf(os.Stderr, "%s\n", rt)
 }
 
+func logMsg(s string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "%s\n", args...)
+}
+
 func log() error {
 	for {
 		var b = make([]byte, 3)
 		_, err := os.Stdin.Read(b)
-		if err != nil {
+		if err == io.EOF {
 			break
 		}
-		_, werr := os.Stdout.Write(b)
-		if werr != nil {
-			fmt.Fprintf(os.Stderr, "could not pass % X from stdin to stdout: %s\n", b, werr.Error())
+
+		if err != nil {
+			logMsg("could not read from stdin: %s\n", b, err.Error())
 		}
+		_, werr := os.Stdout.Write(b)
+		_ = werr
 
 		msg, merr := midireader.New(bytes.NewReader(b), logRealTime).Read()
 
 		if merr != nil {
-			fmt.Fprintf(os.Stderr, "could not parse % X from stdin: %s\n", b, merr.Error())
+			logMsg("could understand % X: %s\n", b, merr.Error())
 		} else {
-			fmt.Fprintf(os.Stderr, "%s\n", msg)
+			//logMsg("%s\n", msg)
+			fmt.Fprintln(os.Stderr, msg.String())
 		}
+		runtime.Gosched()
 	}
 	return nil
 }
@@ -135,14 +144,40 @@ func runIn(drv midi.Driver) error {
 		return err
 	}
 
-	err = in.SetListener(func(data []byte, deltaMicroseconds int64) {
-		_, werr := os.Stdout.Write(data)
-		_ = werr
-	})
+	var msgChan = make(chan []byte, 100)
+	var stopChan = make(chan bool, 1)
+	var stoppedChan = make(chan bool, 1)
 
-	if err != nil {
-		return err
-	}
+	go func() {
+		for {
+			select {
+			case msg := <-msgChan:
+				_, werr := os.Stdout.Write(msg)
+				_ = werr
+				if werr != nil {
+					logMsg("error while writing: %s\n", werr.Error())
+				}
+				os.Stdout.Sync()
+
+			case <-stopChan:
+				stoppedChan <- true
+				return
+			}
+		}
+	}()
+
+	go func() {
+
+		err = in.SetListener(func(data []byte, deltaMicroseconds int64) {
+			msgChan <- data
+		})
+
+		if err != nil {
+			stopChan <- true
+			<-stoppedChan
+			logMsg("could not start listener %s\n", err.Error())
+		}
+	}()
 
 	sigchan := make(chan os.Signal, 10)
 
@@ -152,6 +187,9 @@ func runIn(drv midi.Driver) error {
 	// interrupt has happend
 	<-sigchan
 	in.StopListening()
+	stopChan <- true
+	<-stoppedChan
+
 	return nil
 }
 
@@ -165,16 +203,23 @@ func runOut(drv midi.Driver) error {
 
 	for {
 		var b = make([]byte, 3)
-		_, err = os.Stdin.Read(b)
+		_, err := os.Stdin.Read(b)
+
 		if err != nil {
+			logMsg("error %s\n", err.Error())
+			continue
+		}
+
+		if err == io.EOF {
 			break
 		}
+
 		_, werr := out.Write(b)
+
 		if werr != nil {
-			fmt.Fprintf(os.Stderr, "could not write % X to port %q: %s\n", b, out.String(), werr.Error())
+			logMsg("could not write % X to port %q: %s\n", b, out.String(), werr.Error())
 		}
 	}
-
 	return nil
 }
 
