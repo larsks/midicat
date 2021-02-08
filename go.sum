@@ -4,10 +4,15 @@ github.com/emersion/go-appdir v1.1.2/go.mod h1:N15s1uA0vhxhVomEsNau6w15OdELRpp0a
 github.com/pelletier/go-toml v1.8.1 h1:1Nf83orprkJyknT6h7zbuEGUEjcyVlCxSUGTENmNCRM=
 github.com/pelletier/go-toml v1.8.1/go.mod h1:T2/BmBdy8dvIRq1a/8aqjN41wvWlN4lrapLU/GW4pbc=
 gitlab.com/gomidi/midi v1.16.4/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
+gitlab.com/gomidi/midi v1.21.0/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
 gitlab.com/gomidi/midi v1.22.3 h1:bQuG0u7uIj/cQwHrReB+2CqLAj7j7tLiBQ3D3hf/3Iw=
 gitlab.com/gomidi/midi v1.22.3/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
+gitlab.com/gomidi/midi v1.23.0 h1:21DS9n/ZOwkc9Svfn3/FiASCuApQqLacOgATMNeQmaw=
+gitlab.com/gomidi/midi v1.23.0/go.mod h1:3ohtNOhqoSakkuLG/Li1OI6I3J1c2LErnJF5o/VBq1c=
 gitlab.com/gomidi/rtmididrv v0.10.1 h1:BgqhFpBgythJqFbiR8QtL3CER1nh26YCUPFGVidS9gk=
 gitlab.com/gomidi/rtmididrv v0.10.1/go.mod h1:sBxBDsJKVhinLt+kk7fj6WfKRCmnFzFSkFY1chDNLbw=
+gitlab.com/gomidi/rtmididrv v0.11.0 h1:Bc/zr8agMU2KDcpj932Vy51K4YO5Cp6pPIY6Buf6Q6Y=
+gitlab.com/gomidi/rtmididrv v0.11.0/go.mod h1:wjwyt4rCwmvS++uk5mW5S+MnSbUnQUMNVvaEUCunjJE=
 gitlab.com/gomidi/rtmididrv/imported/rtmidi v0.0.0-20191025100939-514fe0ed97a6 h1:0XqAH/BAxH5TTBzIWkdlZqpp6VUx6DFcQnMWW6G6hIc=
 gitlab.com/gomidi/rtmididrv/imported/rtmidi v0.0.0-20191025100939-514fe0ed97a6/go.mod h1:FYVFN2H23IsX56VntiDF9DgCIekHh359wW+iMl1W8rQ=
 gitlab.com/metakeule/config v1.18.9 h1:JscL2hU3b3uuBq6X+fIjTPjOb/uBh36i2F/evMf+lsk=
