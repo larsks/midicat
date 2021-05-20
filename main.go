@@ -45,7 +45,8 @@ var (
 	cmdIns  = cfg.MustCommand("ins", "show the available midi in ports").SkipAllBut("json")
 	cmdOuts = cfg.MustCommand("outs", "show the available midi out ports").SkipAllBut("json")
 
-	cmdLog = cfg.MustCommand("log", "pass the midi from stdin to stdout while logging it to stderr").SkipAllBut()
+	cmdLog      = cfg.MustCommand("log", "pass the midi from stdin to stdout while logging it to stderr").SkipAllBut()
+	argLogNoOut = cmdLog.NewBool("nopass", "don't pass the midi to stdout")
 
 	shouldStop = make(chan bool, 1)
 	didStop    = make(chan bool, 1)
@@ -111,6 +112,8 @@ func logMsg(s string, args ...interface{}) {
 }
 
 func log() error {
+	var logBuffer bytes.Buffer
+	logrd := midireader.New(&logBuffer, logRealTime)
 	for {
 		var b = make([]byte, 3)
 		_, err := os.Stdin.Read(b)
@@ -121,10 +124,15 @@ func log() error {
 		if err != nil {
 			logMsg("could not read from stdin: %s\n", b, err.Error())
 		}
-		_, werr := os.Stdout.Write(b)
-		_ = werr
 
-		msg, merr := midireader.New(bytes.NewReader(b), logRealTime).Read()
+		if !argLogNoOut.Get() {
+			_, werr := os.Stdout.Write(b)
+			_ = werr
+		}
+
+		logBuffer.Write(b)
+		msg, merr := logrd.Read()
+		logBuffer.Reset()
 
 		if merr != nil {
 			logMsg("could understand % X: %s\n", b, merr.Error())
