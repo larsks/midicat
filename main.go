@@ -28,6 +28,7 @@ import (
 	"gitlab.com/gomidi/midi"
 	"gitlab.com/gomidi/midi/midimessage/realtime"
 	"gitlab.com/gomidi/midi/midireader"
+	"gitlab.com/gomidi/midicat/lib"
 	"gitlab.com/gomidi/rtmididrv"
 	"gitlab.com/metakeule/config"
 )
@@ -115,18 +116,19 @@ func log() error {
 	var logBuffer bytes.Buffer
 	logrd := midireader.New(&logBuffer, logRealTime)
 	for {
-		var b = make([]byte, 3)
-		_, err := os.Stdin.Read(b)
+
+		b, err := lib.ReadAndConvert(os.Stdin)
 		if err == io.EOF {
 			break
 		}
 
 		if err != nil {
-			logMsg("could not read from stdin: %s\n", b, err.Error())
+			logMsg("midicat log: could not read from stdin: %s\n", string(b), err.Error())
 		}
 
 		if !argLogNoOut.Get() {
-			_, werr := os.Stdout.Write(b)
+			_, werr := fmt.Fprintf(os.Stdout, "%X\n", b)
+			os.Stdout.Sync()
 			_ = werr
 		}
 
@@ -135,7 +137,7 @@ func log() error {
 		logBuffer.Reset()
 
 		if merr != nil {
-			logMsg("could understand % X: %s\n", b, merr.Error())
+			logMsg("midicat log: could understand % X: %s\n", b, merr.Error())
 		} else {
 			//logMsg("%s\n", msg)
 			fmt.Fprintln(os.Stderr, msg.String())
@@ -153,7 +155,7 @@ func runIn(drv midi.Driver) error {
 		return err
 	}
 
-	var msgChan = make(chan []byte, 100)
+	var msgChan = make(chan []byte, 1)
 	var stopChan = make(chan bool, 1)
 	var stoppedChan = make(chan bool, 1)
 
@@ -161,10 +163,9 @@ func runIn(drv midi.Driver) error {
 		for {
 			select {
 			case msg := <-msgChan:
-				_, werr := os.Stdout.Write(msg)
-				_ = werr
+				_, werr := fmt.Fprintf(os.Stdout, "%X\n", msg)
 				if werr != nil {
-					logMsg("error while writing: %s\n", werr.Error())
+					logMsg("midicat in: error while writing: %s\n", werr.Error())
 				}
 				os.Stdout.Sync()
 
@@ -184,7 +185,7 @@ func runIn(drv midi.Driver) error {
 		if err != nil {
 			stopChan <- true
 			<-stoppedChan
-			logMsg("could not start listener %s\n", err.Error())
+			logMsg("midicat in: could not start listener %s\n", err.Error())
 		}
 	}()
 
@@ -215,22 +216,21 @@ func runOut(drv midi.Driver) error {
 
 	go func() {
 		for {
-			var b = make([]byte, 3)
-			_, err := os.Stdin.Read(b)
-
-			if err != nil {
-				logMsg("error %s\n", err.Error())
-				continue
-			}
+			b, err := lib.ReadAndConvert(os.Stdin)
 
 			if err == io.EOF {
 				break
 			}
 
+			if err != nil {
+				logMsg("midicat out: error %s\n", err.Error())
+				continue
+			}
+
 			_, werr := out.Write(b)
 
 			if werr != nil {
-				logMsg("could not write % X to port %q: %s\n", b, out.String(), werr.Error())
+				logMsg("midicat out: could not write % X to port %q: %s\n", b, out.String(), werr.Error())
 			}
 			runtime.Gosched()
 		}
