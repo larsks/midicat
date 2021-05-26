@@ -1,6 +1,6 @@
 # midicat
 
-Download the binaries for Linux and Windows [here](https://github.com/gomidi/midicat/releases/download/v0.3.3/midicat-binaries.zip).
+Download the binaries for Linux and Windows [here](https://github.com/gomidi/midicat/releases/download/v0.3.6/midicat-binaries.zip).
 
 When using windows, run the commands inside `cmd.exe`.
 
