@@ -19,6 +19,8 @@ gitlab.com/gomidi/rtmididrv v0.11.0 h1:Bc/zr8agMU2KDcpj932Vy51K4YO5Cp6pPIY6Buf6Q
 gitlab.com/gomidi/rtmididrv v0.11.0/go.mod h1:wjwyt4rCwmvS++uk5mW5S+MnSbUnQUMNVvaEUCunjJE=
 gitlab.com/gomidi/rtmididrv v0.13.0 h1:fMX5Wt2wmdt+gJtR7K3ZGvNV4RzdRgS8AquHZ9wW1Zs=
 gitlab.com/gomidi/rtmididrv v0.13.0/go.mod h1:p/6IL1LGgj7utcv3wXudsDWiD9spgAdn0O8LDsGIPG0=
+gitlab.com/gomidi/rtmididrv v0.14.0 h1:IBkDsqXs1RuFoRWgQbyYEpwe0hoXZ17FLTZaJuyXWx0=
+gitlab.com/gomidi/rtmididrv v0.14.0/go.mod h1:p/6IL1LGgj7utcv3wXudsDWiD9spgAdn0O8LDsGIPG0=
 gitlab.com/gomidi/rtmididrv/imported/rtmidi v0.0.0-20191025100939-514fe0ed97a6 h1:0XqAH/BAxH5TTBzIWkdlZqpp6VUx6DFcQnMWW6G6hIc=
 gitlab.com/gomidi/rtmididrv/imported/rtmidi v0.0.0-20191025100939-514fe0ed97a6/go.mod h1:FYVFN2H23IsX56VntiDF9DgCIekHh359wW+iMl1W8rQ=
 gitlab.com/metakeule/config v1.18.9 h1:JscL2hU3b3uuBq6X+fIjTPjOb/uBh36i2F/evMf+lsk=
